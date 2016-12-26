@@ -22,18 +22,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SquatsActivity"
+            android:name=".ExerciseActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="landscape" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".SitUpsActivity" />
-        <activity android:name=".PushUpsActivity" />
-        <activity android:name=".MeActivity" />
         <activity android:name=".StatisticsActivity" />
-        <activity android:name=".PullUpsActivity"></activity>
+        <activity android:name=".ChooseStatisticsActivity"></activity>
     </application>
 
 </manifest>

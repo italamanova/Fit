@@ -5,7 +5,11 @@ import android.util.Log;
 
 import com.example.ira.fit.Data.DBExecutor;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.StringTokenizer;
 
 /**
  * Created by Ira on 01.12.2016.
@@ -20,8 +24,8 @@ public class Exercise {
     public static final String PULLUP = "Pull-ups";
 
     private String type;
-    private int startTime;
-    private int endTime;
+    private String startTime;
+    private String endTime;
     private int quantity;
     private int lastQuantity;
     private int maxQuantity;
@@ -32,21 +36,20 @@ public class Exercise {
         this.context = context;
         dbExec = new DBExecutor(context);
         this.type = type;
-        Calendar c = Calendar.getInstance();
-        this.startTime = c.get(Calendar.SECOND);
-        this.endTime = -1;
+        this.startTime = dbExec.getDateTime(System.currentTimeMillis());
+        this.endTime = "";
         this.quantity = -1;
         this.lastQuantity = dbExec.getLastQuantity(type);
         this.maxQuantity = dbExec.getMaxQuantity(type);
     }
 
-    public Exercise(String type, int startTime, int endTime,int quantity,int lastQuantity,int maxQuantity) {
+    public Exercise(String type, String startTime, String endTime, int quantity) {
         this.type = type;
         this.startTime = startTime;
         this.endTime = endTime;
         this.quantity = quantity;
-        this.lastQuantity = lastQuantity;
-        this.maxQuantity = maxQuantity;
+        //this.lastQuantity = dbExec.getLastQuantity(type);
+        //this.maxQuantity = dbExec.getMaxQuantity(type);
 
     }
 
@@ -58,19 +61,19 @@ public class Exercise {
         this.type = type;
     }
 
-    public long getStartTime() {
-        return startTime;
+    public String getStartTime() {
+        return  startTime;
     }
 
-    public void setStartTime(int startTime) {
+    public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
 
-    public long getEndTime() {
+    public String getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(int endTime) {
+    public void setEndTime(String endTime) {
         this.endTime = endTime;
     }
 
@@ -102,6 +105,10 @@ public class Exercise {
         dbExec.insertExercise(this);
     }
 
+    public void close(){
+        dbExec.close();
+    }
+
 
     @Override
     public String toString() {
@@ -114,6 +121,13 @@ public class Exercise {
                 ", dbExec=" + dbExec +
                 ", context=" + context +
                 '}';
+    }
+
+    public void endSession(int quantity, int i){
+        this.setEndTime(dbExec.getDateTime(System.currentTimeMillis()));
+        this.setQuantity(quantity);
+        this.logEx();
+        this.insert();
     }
 
     public void logEx(){

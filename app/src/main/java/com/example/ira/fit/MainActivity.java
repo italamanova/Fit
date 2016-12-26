@@ -12,7 +12,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
+import android.widget.ImageButton;
+
+import com.example.ira.fit.Model.Exercise;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -21,29 +23,43 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //this.deleteDatabase("exerciseDB");
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        Button squats = (Button)findViewById(R.id.button_squats);
-        squats.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, SquatsActivity.class));
-            }
-        });
-        Button sit_ups = (Button)findViewById(R.id.button_sit_ups);
-        sit_ups.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, SitUpsActivity.class));
-            }
-        });
-        Button push_ups = (Button)findViewById(R.id.button_push_ups);
-        push_ups.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, PushUpsActivity.class));
-            }
-        });
+        try {
+            ImageButton squats = (ImageButton) findViewById(R.id.image_button_squats);
+            ImageButton sit_ups = (ImageButton) findViewById(R.id.image_button_sit_ups);
+            ImageButton push_ups = (ImageButton) findViewById(R.id.image_button_push_ups);
+            ImageButton pull_ups = (ImageButton) findViewById(R.id.image_button_pull_ups);
+
+            View.OnClickListener listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    switch (v.getId()) {
+                        case R.id.image_button_squats:
+                            startExerciseActivity(Exercise.SQUAT);
+                            break;
+                        case R.id.image_button_sit_ups:
+                            startExerciseActivity(Exercise.SITUP);
+                            break;
+                        case R.id.image_button_push_ups:
+                            startExerciseActivity(Exercise.PUSHUP);
+                            break;
+                        case R.id.image_button_pull_ups:
+                            startExerciseActivity(Exercise.PULLUP);
+                            break;
+                        default:
+                            throw new RuntimeException("Unknow button ID");
+                    }
+                }
+            };
+            squats.setOnClickListener(listener);
+            sit_ups.setOnClickListener(listener);
+            push_ups.setOnClickListener(listener);
+            pull_ups.setOnClickListener(listener);
+        }catch(Exception e) {
+            Log.e("myLog", e.getMessage());
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -53,6 +69,13 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+
+    private void startExerciseActivity(String type) {
+        Intent intent = new Intent(getBaseContext(), ExerciseActivity.class);
+        intent.putExtra("EXTRA_EXERCISE_TYPE", type);
+        startActivity(intent);
     }
 
     @Override
@@ -93,16 +116,16 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_me) {
-            // Handle the camera action
-        } else if (id == R.id.nav_statistics) {
+        if (id == R.id.nav_statistics) {
+            startActivity(new Intent(MainActivity.this, StatisticsActivity.class));
 
         } else if (id == R.id.nav_about) {
 
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_exit) {
-
+            finish();
+            System.exit(0);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

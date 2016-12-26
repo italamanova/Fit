@@ -21,8 +21,8 @@ public class DBHelper extends SQLiteOpenHelper {
             + ExerciseContract.ExerciseEntry.TABLE_NAME +" ("
             + ExerciseContract.ExerciseEntry._ID + " integer primary key autoincrement,"
             + ExerciseContract.ExerciseEntry.KEY_TYPE + " text,"
-            + ExerciseContract.ExerciseEntry.KEY_START_TIME + " integer,"
-            + ExerciseContract.ExerciseEntry.KEY_END_TIME + " integer,"
+            + ExerciseContract.ExerciseEntry.KEY_START_TIME + " text,"
+            + ExerciseContract.ExerciseEntry.KEY_END_TIME + " text,"
             + ExerciseContract.ExerciseEntry.KEY_QUANTITY + " integer"
             + ");";
 
