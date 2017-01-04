@@ -1,17 +1,22 @@
 package com.example.ira.fit.Motion;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 //Squatting calculator
 public class MotionDetector
 {
-// list of the motion types
+	// list of the motion types
 	public static int UNKNOWN = 0;
-	public static int xyzMIN_MAX = 1; 
+	public static int xyzMIN_MAX = 1;
 	public static int xyzMAX_MIN = 2; // froward-backward
 	public static int absMIN_MAX_MIN = 3;
 	public static int absMIN_MAX = 4;
 	public static int absMAX_MIN = 5;
-//=======================================
+	public static int absMAX_MIN_MAX = 6;
+	//=======================================
 	private static float STANDARD_GRAVITY  = 9.80665f;
-//=======================================
+	//=======================================
 	private static float absolute(float x, float y, float z)
 	{
 		return (float)Math.sqrt(x*x + y*y + z*z) - STANDARD_GRAVITY;
@@ -54,9 +59,9 @@ public class MotionDetector
 		ExtremeVal ev = e;
 		if(Math.abs(ev.getValue()) > max)
 			max = Math.abs(ev.getValue());
-		return max;		
+		return max;
 	}
-//=======================================
+	//=======================================
 	private int type;            // motion type (see list of the motion types)
 	private float epsilon;      //limit extreme value for calc extreme
 	private ExtremeSumCalc eXCalc; // extreme sum calc for x axis acceleration
@@ -72,7 +77,7 @@ public class MotionDetector
 	private float maxX;         // max for sum value for x axis acceleration
 	private float maxY;         // max for sum value for y axis acceleration
 	private float maxZ;         // max for sum value for z axis acceleration
-	private long count;         // number of shake
+	private long count[];         // number of shake
 	private float abc = 0.0f;   // absolute acceleration
 	private float x;            // x axis acceleration
 	private float y;            // y axis acceleration
@@ -80,16 +85,18 @@ public class MotionDetector
 	private long number;        // sequence number
 	private ExtremeVal firstA;  // first extreme val for absolute acceleration
 	private ExtremeVal lastA;   // last extreme val for absolute acceleration
-//====================================
+	//====================================
 	public MotionDetector(int type, float epsilon)
 	{
 		this.type = type;
-		this.epsilon = epsilon; 
+		this.epsilon = epsilon;
 		eXCalc = new ExtremeSumCalc();
 		eYCalc = new ExtremeSumCalc();
 		eZCalc = new ExtremeSumCalc();
 		eACalc = new ExtremeCalc();
-		count = 0;
+		count = new long[4];
+		for(int i = 0; i < 4; i++)
+			count[i] = 0;
 		number = 0;
 		clear(0);
 	}
@@ -98,6 +105,7 @@ public class MotionDetector
 		eXCalc.clear();
 		eYCalc.clear();
 		eZCalc.clear();
+		eACalc.clear();
 		firstX = null;
 		firstY = null;
 		firstZ = null;
@@ -138,11 +146,14 @@ public class MotionDetector
 	}
 	private int selectionAxis() //1 = x, 2 =y, 3 = z
 	{
+		if(count[1] > 0) return 1;
+		if(count[2] > 0) return 2;
+		if(count[3] > 0) return 3;
 		if((maxX > maxY) && (maxX > maxZ)) return 1;
 		if((maxY > maxX) && (maxY > maxZ)) return 2;
 		if((maxZ > maxX) && (maxZ > maxY)) return 3;
 		return 1;
-		
+
 	}
 	private ExtremeVal calcPriority(int axis)
 	{
@@ -157,7 +168,7 @@ public class MotionDetector
 		ExtremeVal ev = eXCalc.add(x, lastX);
 		if(ev != null)
 		{
-System.out.println("add extremeX="+ev);
+			//printGraph("add extremeX="+ev);
 			if(firstX == null) firstX = ev;
 			if(lastX != null)  lastX.setNext(ev);
 			lastX = ev;
@@ -166,7 +177,7 @@ System.out.println("add extremeX="+ev);
 		ev = eYCalc.add(y, lastY);
 		if(ev != null)
 		{
-System.out.println("add extremeY="+ev);
+			//printGraph("add extremeY="+ev);
 			if(firstY == null) firstY = ev;
 			if(lastY != null)  lastY.setNext(ev);
 			lastY = ev;
@@ -175,53 +186,53 @@ System.out.println("add extremeY="+ev);
 		ev = eZCalc.add(z, lastZ);
 		if(ev != null)
 		{
-System.out.println("add extremeZ="+ev);
+			//printGraph("add extremeZ="+ev);
 			if(firstZ == null) firstZ = ev;
 			if(lastZ != null)  lastZ.setNext(ev);
-			lastZ = ev;             
+			lastZ = ev;
 			maxZ = actualMax(maxZ,ev);
 		}
 
 	}
 	private void calcAExtreme()
 	{
-			ExtremeVal ev;
-			ev = eACalc.add(abc, lastA);
-			if(ev != null)
-			{
-System.out.println("!!! add extremeA="+ev);
-				if(firstA == null) firstA = ev;
-				if(lastA != null)  lastA.setNext(ev);
-				lastA = ev;
-			}
+		ExtremeVal ev;
+		ev = eACalc.add(abc, lastA);
+		if(ev != null)
+		{
+			//printGraph("!!! add extremeA="+ev);
+			if(firstA == null) firstA = ev;
+			if(lastA != null)  lastA.setNext(ev);
+			lastA = ev;
+		}
 	}
 	public boolean isShake()
 	{
 		boolean ok = false;
 		if(type == xyzMIN_MAX)
 		{
-            calcXYZSumExtreme();
+			calcXYZSumExtreme();
 			int axis = selectionAxis();
 			ExtremeVal priority = calcPriority(axis);
 			ok = ExtremeVal.analyzeMIN_MAX(priority, epsilon);
 			if(ok)
 			{
-				count++;
-System.out.println("!ok("+count+") " + at(axis) + ExtremeVal.chainToString(priority));
+				count[axis]++;
+				//printExtreme("!ok("+count[axis]+") " + at(axis) + ExtremeVal.chainToString(priority));
 			}
 			if(ok) clear(axis);
 			return ok;
 		}
 		if(type == xyzMAX_MIN)
 		{
-		        calcXYZSumExtreme();
+			calcXYZSumExtreme();
 			int axis = selectionAxis();
 			ExtremeVal priority = calcPriority(axis);
 			ok = ExtremeVal.analyzeMAX_MIN(priority, epsilon);
 			if(ok)
 			{
-				count++;
-System.out.println("!ok("+count+") " + at(axis) + ExtremeVal.chainToString(priority));
+				count[axis]++;
+				//printExtreme("!ok("+count[axis]+") " + at(axis) + ExtremeVal.chainToString(priority));
 			}
 			if(ok) clear(axis);
 			return ok;
@@ -232,8 +243,8 @@ System.out.println("!ok("+count+") " + at(axis) + ExtremeVal.chainToString(prior
 			ok = ExtremeVal.analyzeMIN_MAX_MIN(firstA, epsilon);
 			if(ok)
 			{
-				count++;
-System.out.println("!ok("+count+") A=" + ExtremeVal.chainToString(firstA));
+				count[0]++;
+				//printExtreme("!ok("+count[0]+") A=" + ExtremeVal.chainToString(firstA));
 			}
 			if(ok) clear(0);
 			return ok;
@@ -244,8 +255,8 @@ System.out.println("!ok("+count+") A=" + ExtremeVal.chainToString(firstA));
 			ok = ExtremeVal.analyzeMIN_MAX(firstA, epsilon);
 			if(ok)
 			{
-				count++;
-System.out.println("!ok("+count+") A+" + ExtremeVal.chainToString(firstA));
+				count[0]++;
+				//printExtreme("!ok("+count[0]+") A+" + ExtremeVal.chainToString(firstA));
 			}
 			if(ok) clear(0);
 			return ok;
@@ -256,15 +267,51 @@ System.out.println("!ok("+count+") A+" + ExtremeVal.chainToString(firstA));
 			ok = ExtremeVal.analyzeMAX_MIN(firstA, epsilon);
 			if(ok)
 			{
-				count++;
-System.out.println("!ok("+count+") A+" + ExtremeVal.chainToString(firstA));
+				count[0]++;
+				//printExtreme("!ok("+count[0]+") A+" + ExtremeVal.chainToString(firstA));
+			}
+			if(ok) clear(0);
+			return ok;
+		}
+		if(type == absMAX_MIN_MAX)
+		{
+			calcAExtreme();
+			ok = ExtremeVal.analyzeMAX_MIN_MAX(firstA, epsilon);
+			if(ok)
+			{
+				count[0]++;
+				//printExtreme("!ok("+count[0]+") A=" + ExtremeVal.chainToString(firstA));
 			}
 			if(ok) clear(0);
 			return ok;
 		}
 
-System.out.println(xyzToString(number, abc, x, y, z));
+		//printExtreme(xyzToString(number, abc, x, y, z));
 		return ok;
 	}
+
+	/*public void printGraph(String s){
+		try {
+			FileOutputStream outputStream;
+			File file = new File ("/storage/emulated/0/folder/", fname);
+			outputStream = new FileOutputStream(file, true);
+			outputStream.write((s + "\n").getBytes());
+			outputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void printExtreme(String s){
+		try {
+			FileOutputStream outputStream;
+			File file = new File ("/storage/emulated/0/folder/", fnameExtr);
+			outputStream = new FileOutputStream(file, true);
+			outputStream.write((s + "\n").getBytes());
+			outputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}*/
 }
 

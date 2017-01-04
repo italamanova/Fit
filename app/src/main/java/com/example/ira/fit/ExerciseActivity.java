@@ -74,9 +74,9 @@ public class ExerciseActivity extends AppCompatActivity implements SensorEventLi
         mSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
         mSensorManager.registerListener(this, mProximity, SensorManager.SENSOR_DELAY_NORMAL);
-        
-        accelerometerResultSquats = new AccelerometerResult(MotionDetector.xyzMIN_MAX, 2, 0.75f);
-        accelerometerResultPullUps = new AccelerometerResult(MotionDetector.xyzMAX_MIN, 4, 0.75f);
+
+        accelerometerResultSquats = new AccelerometerResult(MotionDetector.absMIN_MAX_MIN, 2, 0.75f);
+        accelerometerResultPullUps = new AccelerometerResult(MotionDetector.absMAX_MIN_MAX, 5, 0.75f);
         accelerometerResultSitUps = new AccelerometerResult(MotionDetector.xyzMAX_MIN, 2, 0.85f);
 
         v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
