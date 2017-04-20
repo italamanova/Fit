@@ -1,7 +1,5 @@
 package com.example.ira.fit.Motion;
 
-import android.util.Log;
-
 // do linear filtering values
 public class SimpleLinearFilter implements XYZLinearFilter
 {
