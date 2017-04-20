@@ -37,6 +37,9 @@ public class ExerciseActivity extends AppCompatActivity implements SensorEventLi
     AccelerometerResult accelerometerResultSquats;
     AccelerometerResult accelerometerResultPullUps;
     AccelerometerResult accelerometerResultSitUps;
+
+    AccelerometerResult accelerometerResultabsMAX_MIN;
+    AccelerometerResult accelerometerResultabsMIN_MAX;
     
     public Vibrator v;
 
@@ -75,9 +78,11 @@ public class ExerciseActivity extends AppCompatActivity implements SensorEventLi
         mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
         mSensorManager.registerListener(this, mProximity, SensorManager.SENSOR_DELAY_NORMAL);
 
-        accelerometerResultSquats = new AccelerometerResult(MotionDetector.absMIN_MAX_MIN, 2, 0.75f);
-        accelerometerResultPullUps = new AccelerometerResult(MotionDetector.absMAX_MIN_MAX, 5, 0.75f);
-        accelerometerResultSitUps = new AccelerometerResult(MotionDetector.xyzMAX_MIN, 2, 0.85f);
+        accelerometerResultSquats = new AccelerometerResult(MotionDetector.absMIN_MAX_MIN, 2, 0.75f, "GraphSquats.txt", "ExtremeSquats.txt");
+        accelerometerResultPullUps = new AccelerometerResult(MotionDetector.absMAX_MIN_MAX, 5, 0.75f, "GraphPullUps.txt", "ExtremePullUps.txt");
+        accelerometerResultSitUps = new AccelerometerResult(MotionDetector.xyzMAX_MIN, 2, 0.85f, "GraphSitUps.txt", "ExtremeSitUps.txt");
+        accelerometerResultabsMAX_MIN = new AccelerometerResult(MotionDetector.absMAX_MIN, 2, 0.5f, "Graph_absMAX_MIN.txt", "Extreme_absMAX_MIN.txt");
+        accelerometerResultabsMIN_MAX = new AccelerometerResult(MotionDetector.absMAX_MIN, 2, 0.5f, "Graph_absMIN_MAX.txt", "Extreme_absMIN_MAX.txt");
 
         v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
 

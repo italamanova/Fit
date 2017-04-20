@@ -1,11 +1,7 @@
 package com.example.ira.fit.Motion;
 
-import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.util.Log;
-
-import com.example.ira.fit.Motion.MotionDetector;
-import com.example.ira.fit.Motion.SimpleLinearFilter;
 
 /**
  * Created by Ira on 06.11.2016.
@@ -15,14 +11,17 @@ public class AccelerometerResult {
     private static String log = "myLog";
     float filterCoef;
 
+
     SimpleLinearFilter simpleLinearFilter;
     MotionDetector motionDetector;
 
-    public AccelerometerResult(int type, int epsylon, float filterCoef) {
+    public AccelerometerResult(int type, int epsylon, float filterCoef, String fileName, String fnameExtr) {
         simpleLinearFilter = new SimpleLinearFilter();
         motionDetector = new MotionDetector(type, epsylon);
+        motionDetector.fname = fileName;
+        motionDetector.fnameExtr = fnameExtr;
         this.filterCoef = filterCoef;
-    }
+           }
 
     public boolean isAction(SensorEvent sensorEvent) {
         float[] original = sensorEvent.values;
